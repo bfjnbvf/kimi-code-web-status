@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --text: rgba(0, 0, 0, 0.9);
+    --text-secondary: rgba(0, 0, 0, 0.6);
+    --text-tertiary: rgba(0, 0, 0, 0.45);
+    --fill-1: rgba(0, 0, 0, 0.03);
+    --fill-2: rgba(0, 0, 0, 0.05);
+    --fill-2-hover: rgba(0, 0, 0, 0.079);
+    --accent: #1783ff;
+    --accent-hover: rgba(22, 127, 247, 1);
+    --green: #16c456;
+    --danger: #ff3849;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text: rgba(255, 255, 255, 0.84);
+      --text-secondary: rgba(255, 255, 255, 0.56);
+      --text-tertiary: rgba(255, 255, 255, 0.42);
+      --fill-1: rgba(255, 255, 255, 0.05);
+      --fill-2: rgba(255, 255, 255, 0.1);
+      --fill-2-hover: rgba(255, 255, 255, 0.145);
+      --accent: #1a88ff;
+      --accent-hover: rgba(37, 142, 255, 1);
+      --green: #16c456;
+      --danger: #ff4756;
+    }
+    body { background: #1f1f1f; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 260px;
+    padding: 14px;
+    font-family: "PingFang SC", -apple-system, sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    user-select: none;
+  }
+
+  .title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--fill-1);
+    margin-bottom: 10px;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--text-tertiary);
+  }
+
+  .dot.ok { background: var(--green); }
+  .dot.bad { background: var(--danger); }
+
+  #auth-hint {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--fill-1);
+    margin-bottom: 10px;
+    word-break: break-all;
+  }
+
+  #auth-hint strong {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hidden { display: none; }
+
+  button {
+    display: block;
+    width: 100%;
+    padding: 7px 0;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease, transform 120ms ease, opacity 150ms ease;
+  }
+
+  button:hover { background: var(--accent-hover); }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+  button.secondary {
+    margin-top: 6px;
+    background: var(--fill-2);
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  button.secondary:hover { background: var(--fill-2-hover); }
+
+  .footer {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-tertiary);
+  }
+
+  .footer a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .footer a:hover {
+    color: var(--accent-hover);
+  }
+</style>
+</head>
+<body>
+  <div class="title">Kimi Code Monitor</div>
+  <div class="status-row">
+    <span class="dot" id="status-dot"></span>
+    <span id="status-text">正在查询授权状态…</span>
+  </div>
+  <div id="auth-hint" class="hidden"></div>
+  <button type="button" id="reauth-btn">重新授权 / 切换账户</button>
+  <button type="button" id="clear-btn" class="secondary">清除授权</button>
+  <div class="footer">v<span id="version"></span> · by <a href="https://github.com/bfjnbvf/kimi-code-web-status" target="_blank" rel="noopener">十叶</a></div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "minimum_chrome_version": "120",
+  "name": "Kimi Code Monitor",
+  "version": "1.0.0",
+  "author": "十叶",
+  "description": "Kimi Code Web UI 底部 Agent 状态 HUD：额度、Token、缓存、性能一目了然",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "popup.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://127.0.0.1/*",
+        "http://localhost/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "host_permissions": [
+    "https://api.kimi.com/*",
+    "https://auth.kimi.com/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "homepage_url": "https://github.com/bfjnbvf/kimi-code-monitor"
+}

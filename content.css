@@ -1,0 +1,492 @@
+/* ===== Kimi Web Status Widget =====
+ * 视觉值对齐 Kimi 设计 token：
+ * labels / fills / separator / status(kimiBlue, positiveGreen, orange, danger)
+ * 字阶用 webUI 的 c2(10) / c1(12) / b2(14)，数字统一 tabular-nums。
+ */
+
+#ksb-widget {
+  --ksb-text: rgba(0, 0, 0, 0.9);
+  --ksb-text-secondary: rgba(0, 0, 0, 0.6);
+  --ksb-text-tertiary: rgba(0, 0, 0, 0.45);
+  --ksb-text-quaternary: rgba(0, 0, 0, 0.3);
+  --ksb-fill-1: rgba(0, 0, 0, 0.03);
+  --ksb-fill-2: rgba(0, 0, 0, 0.05);
+  --ksb-fill-2-hover: rgba(0, 0, 0, 0.079);
+  --ksb-surface: #ffffff;
+  --ksb-border: rgba(0, 0, 0, 0.13);
+  --ksb-accent: #1783ff;
+  --ksb-accent-hover: rgba(22, 127, 247, 1);
+  --ksb-accent-bg: rgba(23, 131, 255, 0.1);
+  --ksb-green: #16c456;
+  --ksb-orange: #ff9500;
+  --ksb-danger: #ff3849;
+
+  margin: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--ksb-fill-1);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ksb-text-secondary);
+  user-select: none;
+  -webkit-user-select: none;
+  flex-shrink: 0;
+  container-type: inline-size;
+  transition:
+    background-color 150ms ease,
+    padding 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  #ksb-widget {
+    --ksb-text: rgba(255, 255, 255, 0.84);
+    --ksb-text-secondary: rgba(255, 255, 255, 0.56);
+    --ksb-text-tertiary: rgba(255, 255, 255, 0.42);
+    --ksb-text-quaternary: rgba(255, 255, 255, 0.26);
+    --ksb-fill-1: rgba(255, 255, 255, 0.05);
+    --ksb-fill-2: rgba(255, 255, 255, 0.1);
+    --ksb-fill-2-hover: rgba(255, 255, 255, 0.145);
+    --ksb-surface: #292929;
+    --ksb-border: rgba(255, 255, 255, 0.12);
+    --ksb-accent: #1a88ff;
+    --ksb-accent-hover: rgba(37, 142, 255, 1);
+    --ksb-accent-bg: rgba(26, 136, 255, 0.1);
+    --ksb-green: #16c456;
+    --ksb-orange: #ff9f0a;
+    --ksb-danger: #ff4756;
+  }
+}
+
+#ksb-widget * {
+  box-sizing: border-box;
+}
+
+/* --- 待授权：整张卡片是可点按钮 --- */
+#ksb-widget.ksb-auth-required {
+  cursor: pointer;
+}
+
+#ksb-widget.ksb-auth-required:hover {
+  background: var(--ksb-fill-2);
+}
+
+#ksb-widget.ksb-auth-required:focus-visible {
+  outline: 2px solid var(--ksb-accent);
+  outline-offset: 2px;
+}
+
+/* --- 头部：状态点 + 名称 + 余额 --- */
+.ksb-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.ksb-title {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ksb-text-quaternary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+/* 暗色下四级灰过暗，标题提到三级灰保证可读 */
+@media (prefers-color-scheme: dark) {
+  .ksb-title {
+    color: var(--ksb-text-tertiary);
+  }
+}
+
+.ksb-title:hover {
+  color: var(--ksb-text-secondary);
+}
+
+.ksb-title-brief {
+  display: none;
+}
+
+/* 宽度不足时标题缩为 Kimi，倒计时依次降级为单单位、隐藏 */
+@container (max-width: 170px) {
+  .ksb-title-long { display: none; }
+  .ksb-title-brief { display: inline; }
+}
+
+.ksb-reset-short {
+  display: none;
+}
+
+@container (max-width: 179px) {
+  .ksb-reset-full { display: none; }
+  .ksb-reset-short { display: inline; }
+}
+
+@container (max-width: 155px) {
+  .ksb-reset { display: none; }
+}
+
+.ksb-balance {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: var(--ksb-fill-2);
+  font-size: 10px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ksb-text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.ksb-balance:hover {
+  background: var(--ksb-fill-2-hover);
+}
+
+.ksb-agent-status {
+  font-size: 10px;
+  color: var(--ksb-text-tertiary);
+  white-space: nowrap;
+}
+
+.ksb-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ksb-status-dot.ksb-idle { background: var(--ksb-text-quaternary); }
+.ksb-status-dot.ksb-thinking,
+.ksb-status-dot.ksb-running {
+  background: var(--ksb-accent);
+  animation: ksb-pulse 1.2s ease-in-out infinite;
+}
+.ksb-status-dot.ksb-offline { background: var(--ksb-danger); }
+.ksb-status-dot.ksb-unauthorized { background: var(--ksb-danger); }
+
+@keyframes ksb-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+
+/* --- 额度：一行两组，压缩放在卡片最底部；整行可点击切换 Mini 模式 --- */
+.ksb-quota {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.ksb-quota-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ksb-quota-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.ksb-reset {
+  margin-left: 4px;
+  font-size: 10px;
+  color: var(--ksb-text-quaternary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ksb-quota-pct {
+  margin-left: auto;
+}
+
+.ksb-chevron {
+  flex-shrink: 0;
+  display: flex;
+  color: var(--ksb-text-quaternary);
+  transform: rotate(180deg); /* 完整模式：向下，表示点击可收起到一行 */
+  transition: transform 200ms ease, color 150ms ease;
+}
+
+.ksb-quota:hover .ksb-chevron {
+  color: var(--ksb-text-secondary);
+}
+
+#ksb-widget.ksb-mini .ksb-chevron {
+  transform: none; /* Mini 模式：向上，表示点击向上展开 */
+}
+
+#ksb-widget.ksb-mini {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* --- 待授权横幅：在 header 下方显眼提示，整卡可点 --- */
+.ksb-auth-banner {
+  margin: -2px 0 10px;
+  padding: 6px 0;
+  border-radius: 8px;
+  background: var(--ksb-accent-bg);
+  color: var(--ksb-accent);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* --- Mini 模式：只保留额度行 --- */
+.ksb-header,
+.ksb-stats,
+.ksb-auth-banner {
+  overflow: hidden;
+  transition:
+    max-height 250ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 200ms ease,
+    margin 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* max-height 贴近真实高度，保证折叠全程匀速可见 */
+.ksb-header { max-height: 24px; }
+.ksb-stats { max-height: 90px; }
+.ksb-auth-banner { max-height: 36px; }
+
+#ksb-widget.ksb-mini .ksb-header,
+#ksb-widget.ksb-mini .ksb-stats,
+#ksb-widget.ksb-mini .ksb-auth-banner {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  pointer-events: none;
+}
+
+.ksb-quota-label {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--ksb-text-tertiary);
+}
+
+.ksb-progress {
+  height: 3px;
+  border-radius: 100px;
+  background: var(--ksb-fill-2);
+  overflow: hidden;
+}
+
+.ksb-progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition:
+    width 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 200ms ease;
+}
+
+.ksb-progress-fill.ksb-low { background: var(--ksb-green); }
+.ksb-progress-fill.ksb-mid { background: var(--ksb-orange); }
+.ksb-progress-fill.ksb-high { background: var(--ksb-danger); }
+
+.ksb-quota-pct {
+  min-width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ksb-text-secondary);
+}
+
+.ksb-quota-pct.ksb-mid { color: var(--ksb-orange); }
+.ksb-quota-pct.ksb-high { color: var(--ksb-danger); }
+.ksb-quota-pct.ksb-auth-hint { color: var(--ksb-accent); }
+
+/* --- 会话指标：2×2 栅格，标签在上、数值在下 --- */
+.ksb-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin-bottom: 10px;
+  /* 右列与额度行「本周」对齐：让出箭头的占位（12px 间距 + 8px 箭头） */
+  padding-right: 20px;
+}
+
+.ksb-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.ksb-stat-label {
+  font-size: 10px;
+  color: var(--ksb-text-tertiary);
+  white-space: nowrap;
+}
+
+.ksb-stat-value {
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ksb-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- 速度标签旁的次级信息（上轮耗时） --- */
+.ksb-stat-sub {
+  color: var(--ksb-text-quaternary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- 减少动态效果偏好 --- */
+@media (prefers-reduced-motion: reduce) {
+  #ksb-widget {
+    transition: none;
+  }
+  .ksb-progress-fill {
+    transition: none;
+  }
+  .ksb-header,
+  .ksb-stats,
+  .ksb-auth-banner,
+  .ksb-chevron {
+    transition: none;
+  }
+  .ksb-status-dot.ksb-thinking,
+  .ksb-status-dot.ksb-running {
+    animation: none;
+  }
+  #ksb-guide {
+    animation: none;
+  }
+}
+
+/* ===== 新手引导浮层 ===== */
+#ksb-guide {
+  --ksb-text: rgba(0, 0, 0, 0.9);
+  --ksb-text-secondary: rgba(0, 0, 0, 0.6);
+  --ksb-text-tertiary: rgba(0, 0, 0, 0.45);
+  --ksb-fill-2: rgba(0, 0, 0, 0.05);
+  --ksb-surface: #ffffff;
+  --ksb-border: rgba(0, 0, 0, 0.13);
+  --ksb-accent: #1783ff;
+  --ksb-accent-hover: rgba(22, 127, 247, 1);
+  --ksb-green: #16c456;
+  --ksb-danger: #ff3849;
+
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  width: 252px;
+  padding: 14px 14px 12px;
+  border-radius: 12px;
+  border: 0.5px solid var(--ksb-border);
+  background: var(--ksb-surface);
+  box-shadow: 0 4px 15px 2px rgba(0, 0, 0, 0.15);
+  font-family: "PingFang SC", -apple-system, sans-serif;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ksb-text-secondary);
+  z-index: 999999;
+  animation: ksb-guide-in 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  #ksb-guide {
+    --ksb-text: rgba(255, 255, 255, 0.84);
+    --ksb-text-secondary: rgba(255, 255, 255, 0.56);
+    --ksb-text-tertiary: rgba(255, 255, 255, 0.42);
+    --ksb-fill-2: rgba(255, 255, 255, 0.1);
+    --ksb-surface: #292929;
+    --ksb-border: rgba(255, 255, 255, 0.12);
+    --ksb-accent: #1a88ff;
+    --ksb-accent-hover: rgba(37, 142, 255, 1);
+    --ksb-green: #16c456;
+    --ksb-danger: #ff4756;
+  }
+}
+
+@keyframes ksb-guide-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+#ksb-guide * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#ksb-guide .ksb-guide-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ksb-text);
+  margin-bottom: 10px;
+}
+
+#ksb-guide .ksb-guide-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+#ksb-guide .ksb-guide-key {
+  flex-shrink: 0;
+  min-width: 56px;
+  font-weight: 500;
+  color: var(--ksb-text);
+}
+
+#ksb-guide .ksb-guide-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 3px;
+  vertical-align: 1px;
+}
+
+#ksb-guide .ksb-guide-dot + span,
+#ksb-guide .ksb-guide-pair {
+  margin-right: 8px;
+}
+
+#ksb-guide .g-gray { background: var(--ksb-text-tertiary); }
+#ksb-guide .g-blue { background: var(--ksb-accent); }
+#ksb-guide .g-green { background: var(--ksb-green); }
+#ksb-guide .g-red { background: var(--ksb-danger); }
+
+#ksb-guide .ksb-guide-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 6px 0;
+  border: none;
+  border-radius: 8px;
+  background: var(--ksb-accent);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 120ms ease;
+}
+
+#ksb-guide .ksb-guide-btn:hover {
+  background: var(--ksb-accent-hover);
+}
+
+#ksb-guide .ksb-guide-btn:active {
+  transform: scale(0.97);
+}

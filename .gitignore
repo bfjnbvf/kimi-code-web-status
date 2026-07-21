@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# 旧版残留与本地预览
+content 2.js
+.preview.html
+.preview.png
+.popup-preview.png
+
+# 打包产物
+kimi-web-status-bar-v*.zip
+.preview-*.html
