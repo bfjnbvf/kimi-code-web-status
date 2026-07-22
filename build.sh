@@ -9,7 +9,7 @@ OUT="kimi-code-monitor-v${VERSION}.zip"
 rm -f "$OUT"
 zip -r "$OUT" \
   manifest.json \
-  content.js content.css background.js \
+  metrics.js content.js content.css background.js \
   popup.html popup.js \
   icons \
   README.md LICENSE \

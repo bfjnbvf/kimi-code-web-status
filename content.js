@@ -15,6 +15,15 @@
   const SUBSCRIPTION_URL = 'https://www.kimi.com/membership/subscription?tab=quota';
   const MINI_STORAGE_KEY = 'kimi-statusbar.mini';
   const ONBOARDED_STORAGE_KEY = 'kimi-statusbar.onboarded';
+  const {
+    appendSpeedSample,
+    boosterBalanceYuan,
+    cacheReadPercentage,
+    decodeSpeed,
+    medianSpeed,
+    normalizeUsage,
+    totalInputTokens
+  } = globalThis.KimiMetrics;
 
   const STATUS_TEXT = {
     idle: '空闲',
@@ -46,6 +55,7 @@
     outputTokens: 0,
     cacheReadTokens: 0,
     cacheCreationTokens: 0,
+    speedSamples: [],
     lastSpeed: 0,
     lastDuration: 0,
     agentStatus: 'idle'
@@ -320,23 +330,23 @@
 
   function updateBalance(wallet) {
     if (!els?.balance) return;
-    const amountLeft = Number(wallet?.balance?.amountLeft);
-    els.balance.textContent = Number.isFinite(amountLeft)
-      ? `¥${Math.max(0, amountLeft / 100_000_000).toFixed(2)}`
+    const balanceYuan = boosterBalanceYuan(wallet);
+    els.balance.textContent = balanceYuan != null
+      ? `¥${balanceYuan.toFixed(2)}`
       : '余额 --';
   }
 
   function updateTokenDisplay() {
     if (!els) return;
-    if (els.inputTokens) els.inputTokens.textContent = fmtNum(metrics.inputTokens);
+    if (els.inputTokens) els.inputTokens.textContent = fmtNum(totalInputTokens(metrics));
     if (els.outputTokens) els.outputTokens.textContent = fmtNum(metrics.outputTokens);
   }
 
   function updateCacheDisplay() {
     if (!els?.cachePct) return;
-    const totalInput = metrics.inputTokens + metrics.cacheReadTokens + metrics.cacheCreationTokens;
-    els.cachePct.textContent = totalInput > 0
-      ? `${Math.round((metrics.cacheReadTokens / totalInput) * 100)}%`
+    const percentage = cacheReadPercentage(metrics);
+    els.cachePct.textContent = percentage != null
+      ? `${percentage}%`
       : '--';
   }
 
@@ -540,6 +550,7 @@
     metrics.outputTokens = 0;
     metrics.cacheReadTokens = 0;
     metrics.cacheCreationTokens = 0;
+    metrics.speedSamples = [];
     metrics.lastSpeed = 0;
     metrics.lastDuration = 0;
     metrics.agentStatus = 'idle';
@@ -561,11 +572,11 @@
         targetSessionId !== sessionId ||
         targetToken !== token
       ) return;
-      const usage = data.usage || {};
-      metrics.inputTokens = toNumber(usage.input_tokens);
-      metrics.outputTokens = toNumber(usage.output_tokens);
-      metrics.cacheReadTokens = toNumber(usage.cache_read_tokens);
-      metrics.cacheCreationTokens = toNumber(usage.cache_creation_tokens);
+      const usage = normalizeUsage(data.usage);
+      metrics.inputTokens = usage.inputTokens;
+      metrics.outputTokens = usage.outputTokens;
+      metrics.cacheReadTokens = usage.cacheReadTokens;
+      metrics.cacheCreationTokens = usage.cacheCreationTokens;
       metrics.agentStatus = data.busy || data.main_turn_active ? 'running' : 'idle';
       lastSeq = toNumber(data.last_seq);
       renderAll();
@@ -699,22 +710,20 @@
   }
 
   function handleStepCompleted(payload) {
-    const usage = payload.usage || payload.token_usage || {};
-    const input = toNumber(usage.inputOther ?? usage.input_tokens ?? usage.prompt_tokens);
-    const output = toNumber(usage.output ?? usage.output_tokens ?? usage.completion_tokens);
-    const cacheRead = toNumber(usage.inputCacheRead ?? usage.cache_read_input_tokens ?? usage.cache_read_tokens);
-    const cacheCreation = toNumber(usage.inputCacheCreation ?? usage.cache_creation_input_tokens);
+    const usage = normalizeUsage(payload.usage || payload.token_usage);
 
-    metrics.inputTokens += input;
-    metrics.outputTokens += output;
-    metrics.cacheReadTokens += cacheRead;
-    metrics.cacheCreationTokens += cacheCreation;
+    metrics.inputTokens += usage.inputTokens;
+    metrics.outputTokens += usage.outputTokens;
+    metrics.cacheReadTokens += usage.cacheReadTokens;
+    metrics.cacheCreationTokens += usage.cacheCreationTokens;
 
-    const streamDuration = toNumber(
-      payload.llmStreamDurationMs ?? payload.duration_ms ?? payload.duration
-    );
-    if (streamDuration > 0 && output > 0) {
-      metrics.lastSpeed = Math.round(output / (streamDuration / 1_000));
+    const streamDuration = payload.llmStreamDurationMs ?? payload.llmServerDecodeMs;
+    const speed = decodeSpeed(usage.outputTokens, streamDuration);
+    if (speed != null) {
+      metrics.speedSamples = appendSpeedSample(metrics.speedSamples, speed);
+      metrics.lastSpeed = medianSpeed(metrics.speedSamples);
+    } else {
+      metrics.lastSpeed = 0;
     }
     renderAll();
   }
