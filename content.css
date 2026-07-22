@@ -5,22 +5,21 @@
  */
 
 #ksb-widget {
-  /* 直接继承 Kimi Web 的页面主题，而不是只跟随操作系统主题。 */
-  --ksb-text: var(--color-text, rgba(0, 0, 0, 0.9));
-  --ksb-text-secondary: var(--color-text-muted, rgba(0, 0, 0, 0.6));
-  --ksb-text-tertiary: var(--color-text-faint, rgba(0, 0, 0, 0.45));
-  --ksb-text-quaternary: color-mix(in srgb, var(--color-text, #000000) 30%, transparent);
-  --ksb-fill-1: var(--color-hover, rgba(0, 0, 0, 0.03));
-  --ksb-fill-2: var(--color-selected, rgba(0, 0, 0, 0.05));
-  --ksb-fill-2-hover: color-mix(in srgb, var(--color-text, #000000) 14.5%, transparent);
-  --ksb-surface: var(--color-surface-raised, #ffffff);
-  --ksb-border: var(--color-line, rgba(0, 0, 0, 0.13));
-  --ksb-accent: var(--color-accent, #1783ff);
-  --ksb-accent-hover: var(--color-accent-hover, #167ff7);
-  --ksb-accent-bg: var(--color-accent-soft, rgba(23, 131, 255, 0.1));
-  --ksb-green: var(--color-success, #16c456);
-  --ksb-orange: var(--color-warning, #ff9500);
-  --ksb-danger: var(--color-danger, #ff3849);
+  --ksb-text: rgba(0, 0, 0, 0.9);
+  --ksb-text-secondary: rgba(0, 0, 0, 0.6);
+  --ksb-text-tertiary: rgba(0, 0, 0, 0.45);
+  --ksb-text-quaternary: rgba(0, 0, 0, 0.3);
+  --ksb-fill-1: rgba(0, 0, 0, 0.03);
+  --ksb-fill-2: rgba(0, 0, 0, 0.05);
+  --ksb-fill-2-hover: rgba(0, 0, 0, 0.079);
+  --ksb-surface: #ffffff;
+  --ksb-border: rgba(0, 0, 0, 0.13);
+  --ksb-accent: #1783ff;
+  --ksb-accent-hover: rgba(22, 127, 247, 1);
+  --ksb-accent-bg: rgba(23, 131, 255, 0.1);
+  --ksb-green: #16c456;
+  --ksb-orange: #ff9500;
+  --ksb-danger: #ff3849;
 
   margin: 12px;
   padding: 12px;
@@ -37,6 +36,46 @@
   transition:
     background-color 150ms ease,
     padding 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* 使用原版暗色色板，但由 Kimi Web 自身的主题设置决定是否启用。 */
+html[data-color-scheme="dark"] #ksb-widget {
+  --ksb-text: rgba(255, 255, 255, 0.84);
+  --ksb-text-secondary: rgba(255, 255, 255, 0.56);
+  --ksb-text-tertiary: rgba(255, 255, 255, 0.42);
+  --ksb-text-quaternary: rgba(255, 255, 255, 0.26);
+  --ksb-fill-1: rgba(255, 255, 255, 0.05);
+  --ksb-fill-2: rgba(255, 255, 255, 0.1);
+  --ksb-fill-2-hover: rgba(255, 255, 255, 0.145);
+  --ksb-surface: #292929;
+  --ksb-border: rgba(255, 255, 255, 0.12);
+  --ksb-accent: #1a88ff;
+  --ksb-accent-hover: rgba(37, 142, 255, 1);
+  --ksb-accent-bg: rgba(26, 136, 255, 0.1);
+  --ksb-green: #16c456;
+  --ksb-orange: #ff9f0a;
+  --ksb-danger: #ff4756;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-color-scheme="system"] #ksb-widget,
+  html:not([data-color-scheme]) #ksb-widget {
+    --ksb-text: rgba(255, 255, 255, 0.84);
+    --ksb-text-secondary: rgba(255, 255, 255, 0.56);
+    --ksb-text-tertiary: rgba(255, 255, 255, 0.42);
+    --ksb-text-quaternary: rgba(255, 255, 255, 0.26);
+    --ksb-fill-1: rgba(255, 255, 255, 0.05);
+    --ksb-fill-2: rgba(255, 255, 255, 0.1);
+    --ksb-fill-2-hover: rgba(255, 255, 255, 0.145);
+    --ksb-surface: #292929;
+    --ksb-border: rgba(255, 255, 255, 0.12);
+    --ksb-accent: #1a88ff;
+    --ksb-accent-hover: rgba(37, 142, 255, 1);
+    --ksb-accent-bg: rgba(26, 136, 255, 0.1);
+    --ksb-green: #16c456;
+    --ksb-orange: #ff9f0a;
+    --ksb-danger: #ff4756;
+  }
 }
 
 #ksb-widget * {
@@ -74,6 +113,17 @@
   cursor: pointer;
   white-space: nowrap;
   transition: color 150ms ease;
+}
+
+html[data-color-scheme="dark"] #ksb-widget .ksb-title {
+  color: var(--ksb-text-tertiary);
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-color-scheme="system"] #ksb-widget .ksb-title,
+  html:not([data-color-scheme]) #ksb-widget .ksb-title {
+    color: var(--ksb-text-tertiary);
+  }
 }
 
 .ksb-title:hover {
@@ -346,16 +396,16 @@
 
 /* ===== 新手引导浮层 ===== */
 #ksb-guide {
-  --ksb-text: var(--color-text, rgba(0, 0, 0, 0.9));
-  --ksb-text-secondary: var(--color-text-muted, rgba(0, 0, 0, 0.6));
-  --ksb-text-tertiary: var(--color-text-faint, rgba(0, 0, 0, 0.45));
-  --ksb-fill-2: var(--color-selected, rgba(0, 0, 0, 0.05));
-  --ksb-surface: var(--color-surface-raised, #ffffff);
-  --ksb-border: var(--color-line, rgba(0, 0, 0, 0.13));
-  --ksb-accent: var(--color-accent, #1783ff);
-  --ksb-accent-hover: var(--color-accent-hover, #167ff7);
-  --ksb-green: var(--color-success, #16c456);
-  --ksb-danger: var(--color-danger, #ff3849);
+  --ksb-text: rgba(0, 0, 0, 0.9);
+  --ksb-text-secondary: rgba(0, 0, 0, 0.6);
+  --ksb-text-tertiary: rgba(0, 0, 0, 0.45);
+  --ksb-fill-2: rgba(0, 0, 0, 0.05);
+  --ksb-surface: #ffffff;
+  --ksb-border: rgba(0, 0, 0, 0.13);
+  --ksb-accent: #1783ff;
+  --ksb-accent-hover: rgba(22, 127, 247, 1);
+  --ksb-green: #16c456;
+  --ksb-danger: #ff3849;
 
   position: fixed;
   left: 16px;
@@ -372,6 +422,35 @@
   color: var(--ksb-text-secondary);
   z-index: 999999;
   animation: ksb-guide-in 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+html[data-color-scheme="dark"] #ksb-guide {
+  --ksb-text: rgba(255, 255, 255, 0.84);
+  --ksb-text-secondary: rgba(255, 255, 255, 0.56);
+  --ksb-text-tertiary: rgba(255, 255, 255, 0.42);
+  --ksb-fill-2: rgba(255, 255, 255, 0.1);
+  --ksb-surface: #292929;
+  --ksb-border: rgba(255, 255, 255, 0.12);
+  --ksb-accent: #1a88ff;
+  --ksb-accent-hover: rgba(37, 142, 255, 1);
+  --ksb-green: #16c456;
+  --ksb-danger: #ff4756;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-color-scheme="system"] #ksb-guide,
+  html:not([data-color-scheme]) #ksb-guide {
+    --ksb-text: rgba(255, 255, 255, 0.84);
+    --ksb-text-secondary: rgba(255, 255, 255, 0.56);
+    --ksb-text-tertiary: rgba(255, 255, 255, 0.42);
+    --ksb-fill-2: rgba(255, 255, 255, 0.1);
+    --ksb-surface: #292929;
+    --ksb-border: rgba(255, 255, 255, 0.12);
+    --ksb-accent: #1a88ff;
+    --ksb-accent-hover: rgba(37, 142, 255, 1);
+    --ksb-green: #16c456;
+    --ksb-danger: #ff4756;
+  }
 }
 
 @keyframes ksb-guide-in {
